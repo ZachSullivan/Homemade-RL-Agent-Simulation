@@ -621,7 +621,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 1805630886}
   displacementRadius: 0.75
-  displacementDistance: 2
+  forceTimeDelta: 0
   maxSpeed: 5
 --- !u!135 &1805630888
 SphereCollider:
@@ -690,7 +690,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1805630885}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5569999, z: 0}
+  m_LocalPosition: {x: 0, y: 0.503, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

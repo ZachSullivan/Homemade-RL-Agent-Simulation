@@ -19,7 +19,6 @@ public class Wandering : MonoBehaviour
         //setForce();
         float randAngle = Random.Range(0f, 359f);
         disTargetCenter = setDisplacementTarget(randAngle);
-
         Debug.Log("-------------------------------------");
     }
 
@@ -37,7 +36,7 @@ public class Wandering : MonoBehaviour
         // now apply this random target direction as a Force for the X and Z axis only
         rb.AddForce((disTargetCenter.x * 10),                                       // X axis
                           0,														// eliminates Y axis (vertical) compoent of Force
-                          (disTargetCenter.z * 10));							    // Z axis
+                          (disTargetCenter.z * 10), ForceMode.VelocityChange);      // Z axis
 
         // now clamp the sphere updated displacement velocity in all axis
         rb.velocity = new Vector3(Mathf.Clamp(rb.velocity.x, 0.0f, maxSpeed),			// X axis
