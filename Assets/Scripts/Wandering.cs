@@ -5,76 +5,72 @@ using UnityEngine;
 public class Wandering : MonoBehaviour
 {
     public Rigidbody rb;
+    // public static Vector3 onUnitSphere; 
     public float displacementRadius;
-    public float displacementDistance;
+    public int forceTimeDelta;
     public float maxSpeed;
 
-    private Vector3 disCircleCenter;
     private Vector3 disTargetCenter;
+    private Vector3 newForceCenter;
 
-    private Vector3 disTargetOrigin;
     void Start() {
-        setForce();
-        setDisplacementCircle();
+        Debug.Log("WANDER-Start: " + rb);
 
-        disTargetOrigin = setDisplacementTarget();
+        //setForce();
+        float randAngle = Random.Range(0f, 359f);
+        disTargetCenter = setDisplacementTarget(randAngle);
+
+        Debug.Log("-------------------------------------");
     }
 
     void FixedUpdate() {
-        Debug.Log(GetRandomValue(0, 1));
-        if ((Time.time % 5 == 0) && (GetRandomValue(0, 1) == 1)) {
-            Debug.Log("True!");
-            disTargetOrigin = setDisplacementTarget();
-            Debug.Log(disTargetOrigin);
+        // Debug.Log( "WANDER-FixedUpdate: " );
+
+        if (Time.time % forceTimeDelta == 0) {
+            float newAngle = Random.Range(0f, 359f);
+            disTargetCenter = setDisplacementTarget(newAngle);
         }
 
-        Vector3 disCircleOrigin = setDisplacementCircle();
-        disCircleCenter = new Vector3(Mathf.Clamp(disCircleOrigin.x, 0.0f, displacementDistance) + this.transform.position.x, disCircleOrigin.y, Mathf.Clamp(disCircleOrigin.z, 0.0f, displacementDistance) + this.transform.position.z);
+        // Gets a random X, Y and Z axis direction on a unit sphere
+        // Vector3 randomOnSphereDirection = Random.onUnitSphere;
 
-        
-        disTargetCenter = new Vector3(disTargetOrigin.x + disCircleCenter.x, disTargetOrigin.y, disTargetOrigin.z + disCircleCenter.z);
+        // now apply this random target direction as a Force for the X and Z axis only
+        rb.AddForce((disTargetCenter.x * 10),                                       // X axis
+                          0,														// eliminates Y axis (vertical) compoent of Force
+                          (disTargetCenter.z * 10));							    // Z axis
 
-        rb.AddForce(disTargetCenter.x * 1, 0, disTargetCenter.z * 1);
-        rb.velocity = new Vector3(Mathf.Clamp(rb.velocity.x, 0.0f, maxSpeed), Mathf.Clamp(rb.velocity.y, 0.0f, maxSpeed), Mathf.Clamp(rb.velocity.z, 0.0f, maxSpeed));
-
-
-    }
-
-    int GetRandomValue(int min, int max) {
-        return Random.Range(min, max);
+        // now clamp the sphere updated displacement velocity in all axis
+        rb.velocity = new Vector3(Mathf.Clamp(rb.velocity.x, 0.0f, maxSpeed),			// X axis
+                                                  Mathf.Clamp(rb.velocity.y, 0.0f, maxSpeed),			// Y axis (vertical)
+                                                  Mathf.Clamp(rb.velocity.z, 0.0f, maxSpeed));			// Z axis
     }
 
     void OnDrawGizmos() {
+        // Debug.Log( "WANDER-OnDrawGizmos: displacementRadius " + displacementRadius + " displacedCircleCentre " + disCircleCenter + " displacedTargetCentre " + disTargetCenter);
 
-        // Draw displacement sphere
-        Gizmos.color = Color.gray;
-        Gizmos.DrawWireSphere(disCircleCenter, displacementRadius);
-
-        // Draw velocity vector into displacment sphere
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position, disCircleCenter);
-
-        // Draw displacement target sphere
+        // Draw force target sphere in RED and in relation to the rigidbody sphere
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(disTargetCenter, 0.05f);
+        newForceCenter.x = (transform.position.x + disTargetCenter.x);
+        newForceCenter.y = (transform.position.y);
+        newForceCenter.z = (transform.position.z + disTargetCenter.z);
+        Gizmos.DrawSphere(newForceCenter, 0.05f);
     }
 
-    // Returns a Vector3 origin for the displacement circle
-    Vector3 setDisplacementCircle() {
-        return new Vector3(transform.position.x + displacementDistance, displacementRadius, 0);
-    }
+    // Returns a Vector3 indicating the new displacement target, given a new angle 
+    Vector3 setDisplacementTarget(float angle) {
+        Debug.Log("WANDER-SetDisplacementTarget: angle = " + angle);
 
-    // Returns a Vector3 indicating the displacement target, given a random angle 
-    Vector3 setDisplacementTarget() {
-        float randAngle = Random.Range(90.0f, -90.0f);
+        float displacementXAxis = Mathf.Cos(Mathf.Deg2Rad * angle);
+        float displacementZAxis = Mathf.Sin(Mathf.Deg2Rad * angle);
+        Debug.Log("WANDER-SetDisplacementTarget: X axis = " + displacementXAxis + " Z axis = " + displacementZAxis);
 
-        Debug.Log("Target Angle:" + randAngle);
-
-        return new Vector3(displacementRadius * Mathf.Cos(Mathf.Deg2Rad * randAngle), displacementRadius, displacementRadius * Mathf.Sin(Mathf.Deg2Rad * randAngle));
+        return new Vector3((displacementRadius * displacementXAxis),					// calculate the X axis component of the new DisplacementTarget vector
+                                         displacementRadius,										// Y axis (vertical) remains untouched for  the new DisplacementTarget vector
+                                        (displacementRadius * displacementZAxis));					// calculate the Z axis component of the new DisplacementTarget vector
     }
 
     void setForce() {
-        rb.AddForce(Vector3.right * 1);
+        Debug.Log("WANDER-setForce: " + (Vector3.right * 10));
+        rb.AddForce((Vector3.right * 10));
     }
-
 }
